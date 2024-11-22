@@ -359,7 +359,6 @@ const page = () => {
                   setTime={setTime}
                   setPercentage={setPercentage}
                 />
-                stmg
               </div>
               <div className=" flex justify-center py-2 gap-4 mt-5 mr-5">
                 {isRunning ? (
