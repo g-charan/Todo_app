@@ -60,10 +60,12 @@ const page = () => {
           <Link href={data.type ? data.type : ""} key={key}>
             <div
               key={key}
-              className=" px-4 rounded-3xl hover:scale-[102%] transition-all duration-100 cursor-pointer relative border-2 py-6"
+              className=" flex flex-col gap-1 px-4 rounded-3xl hover:scale-[102%] transition-all duration-100 cursor-pointer relative border-2 py-6"
             >
-              <p>{data.name}</p>
-              <p>description</p>
+              <p className=" text-lg">{data.name}</p>
+              <p className=" text-sm font-semibold">
+                This is my personal todo list
+              </p>
               {data.element}
             </div>
           </Link>

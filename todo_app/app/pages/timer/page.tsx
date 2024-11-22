@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, MoveLeft, Pause, Play, Square } from "lucide-react";
+import { ArrowLeft, ChevronRight, Pause, Play, Square } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -336,11 +336,13 @@ const page = () => {
     <div className="flex w-full h-[85%] justify-center ">
       <div className="w-2/3 mt-10 flex border rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
         <div className="  py-4 gap-8 w-full flex">
-          <MoveLeft
+          <ArrowLeft
+            size={20}
             onClick={() => route.push("/pages/list")}
-            className=" hover:cursor-pointer"
+            className=" hover:cursor-pointer self-center"
           />
-          <p> TODO LIST for SIMPLE TODO LIST</p>
+
+          <p> Simple Timer</p>
         </div>
         <div className=" w-full grid grid-cols-2 h-[85%] grid-rows-3">
           <div className=" relative row-span-2 col-span-1 flex justify-center">

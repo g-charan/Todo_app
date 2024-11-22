@@ -1,6 +1,6 @@
 "use client";
 
-import { MoveLeft, Pencil, Trash } from "lucide-react";
+import { ArrowLeft, Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -8,10 +8,10 @@ const page = () => {
   const route = useRouter();
   const [number, setNumber] = useState<any>(0);
   const Items = [
-    { name: "smtg", pos: 1 },
-    { name: "smtg", pos: 2 },
-    { name: "smtg", pos: 3 },
-    { name: "smtg", pos: 4 },
+    { name: "Charan's Birthday", pos: 1 },
+    { name: "Task 1", pos: 2 },
+    { name: "Task 1", pos: 3 },
+    { name: "Task 1", pos: 4 },
   ];
   const HandleEnter = (data: any) => {
     setNumber(data.pos);
@@ -22,11 +22,12 @@ const page = () => {
     <div className="flex w-full h-[85%] justify-center ">
       <div className="w-2/3 mt-10 flex border rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
         <div className=" border-b py-4 gap-8 w-full flex">
-          <MoveLeft
+          <ArrowLeft
+            size={20}
             onClick={() => route.push("/pages/list")}
-            className=" hover:cursor-pointer"
+            className=" hover:cursor-pointer self-center"
           />
-          <p> TODO LIST for SIMPLE TODO LIST</p>
+          <p> Simple EVENT List</p>
         </div>
         <div className="w-full py-4  px-10">
           <div className="  flex justify-center w-full gap-8 h-fit ">
@@ -67,8 +68,19 @@ const page = () => {
               onMouseOver={() => HandleEnter(data)}
               className="  px-8 rounded-xl hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border-2 py-4 "
             >
-              <p className="">{data.name}</p>
-              <p className=" absolute left-[45%]">Tags</p>
+              <div className="flex gap-4">
+                <p className=" self-center text-base">{data.name}</p>
+                <p className=" text-xs opacity-65 text-gray-400 self-center font-semibold">
+                  19-11-2022
+                </p>
+              </div>
+              <div className=" absolute left-[20%]  w-2/3 px-2 flex justify-center">
+                <div className=" flex justify-center w-fit rounded-lg py-[0.1rem] px-2 bg-green-200">
+                  <p className=" text-green-600 font-medium text-sm">
+                    BIRTHDAY
+                  </p>
+                </div>
+              </div>
               {data.pos == number && (
                 <div className={`flex gap-4  h-full w-2/3 justify-end`}>
                   <button className=" hover:scale-110 hover:bg-zinc-200 border px-4 rounded-lg text-sm">
