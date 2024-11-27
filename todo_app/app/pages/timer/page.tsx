@@ -1,6 +1,13 @@
 "use client";
 
-import { ArrowLeft, ChevronRight, Pause, Play, Square } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
+  Pause,
+  Play,
+  Square,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -316,11 +323,15 @@ const page = () => {
 
   const [isRunning, setIsRunning] = useState(false);
 
-  const [time, setTime] = useState({
-    hours: 0,
-    minutes: 1,
-    seconds: 0,
-  });
+  const [timerValue, setTimerValue] = useState(0);
+  const [dropDown, setDropDown] = useState(false);
+
+  const timerValues = [
+    { time: { hours: 1, minutes: 0, seconds: 0 } },
+    { time: { hours: 0, minutes: 1, seconds: 0 } },
+    { time: { hours: 0, minutes: 0, seconds: 2 } },
+  ];
+  const [time, setTime] = useState(timerValues[timerValue].time);
   useEffect(() => {
     // const interval = setInterval(() => {
     //   setPercentage((prev) => (prev > 0 ? prev - 1 : 0));
@@ -329,9 +340,10 @@ const page = () => {
   }, [time]);
   const handleReset = () => {
     setIsRunning(false);
-    setTime({ hours: 0, minutes: 1, seconds: 0 });
+    setTime(timerValues[timerValue].time);
     setPercentage(100);
   };
+  useEffect(() => setTime(timerValues[timerValue].time), [timerValue]);
   return (
     <div className="flex w-full h-[85%] justify-center ">
       <div className="w-2/3 mt-10 flex border rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
@@ -346,6 +358,55 @@ const page = () => {
         </div>
         <div className=" w-full grid grid-cols-2 h-[85%] grid-rows-3">
           <div className=" relative row-span-2 col-span-1 flex justify-center">
+            <div className=" absolute mr-6 top-2">
+              <div className="border px-4 w-[7vw] rounded-full flex justify-around items-center gap-2 relative ">
+                {timerValues[timerValue].time.hours != 0 && (
+                  <button>{timerValues[timerValue].time.hours} hours</button>
+                )}
+                {timerValues[timerValue].time.minutes != 0 && (
+                  <button>
+                    {timerValues[timerValue].time.minutes} minutes
+                  </button>
+                )}
+                {timerValues[timerValue].time.seconds != 0 && (
+                  <button>
+                    {timerValues[timerValue].time.seconds} seconds
+                  </button>
+                )}
+                <ChevronDown
+                  size={18}
+                  className=" hover:cursor-pointer"
+                  onClick={() => setDropDown(!dropDown)}
+                />
+                <div
+                  className={`${
+                    !dropDown && "invisible"
+                  } visible absolute top-7 -right-[5%] rounded-md bg-zinc-50  border py-1 w-[15vh]`}
+                >
+                  {timerValues.map((data, key) => (
+                    <div key={key}>
+                      {data != timerValues[timerValue] && (
+                        <div
+                          key={key}
+                          className=" w-full px-2 hover:bg-zinc-200 hover:cursor-pointer"
+                          onClick={() => setTimerValue(key)}
+                        >
+                          {data.time.hours != 0 && (
+                            <button>{data.time.hours} hours</button>
+                          )}
+                          {data.time.minutes != 0 && (
+                            <button>{data.time.minutes} minutes</button>
+                          )}
+                          {data.time.seconds != 0 && (
+                            <button>{data.time.seconds} seconds</button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
             <div className=" flex flex-col self-center">
               {/* <TimerCircularProgressBar percentage={percentage} size={300} /> */}
               {/* <div className=" flex justify-center py-4">
