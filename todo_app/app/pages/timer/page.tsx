@@ -11,30 +11,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// const Progressbar = () => {
-//   const [percentage, setPercentage] = useState(65);
-
-//   return (
-//     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-//       <CircularProgressBar percentage={percentage} />
-//       <div className="mt-4">
-//         <button
-//           onClick={() => setPercentage((prev) => Math.min(prev + 5, 100))}
-//           className="px-4 py-2 text-white bg-blue-500 rounded shadow hover:bg-blue-600"
-//         >
-//           Increase
-//         </button>
-//         <button
-//           onClick={() => setPercentage((prev) => Math.max(prev - 5, 0))}
-//           className="px-4 py-2 ml-2 text-white bg-red-500 rounded shadow hover:bg-red-600"
-//         >
-//           Decrease
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
 const CircularProgressBar = ({ percentage }: any) => {
   const strokeWidth = 10;
   const radius = 50 - strokeWidth / 2;
@@ -292,6 +268,7 @@ const page = () => {
   const [percentage, setPercentage] = useState(100);
   // const [isRunning, setIsRunning] = useState(false);
   const route = useRouter();
+  const [number, setNumber] = useState<any>(0);
   const Items = [
     { name: "smtg" },
     { name: "smtg" },
@@ -326,6 +303,28 @@ const page = () => {
   const [timerValue, setTimerValue] = useState(0);
   const [dropDown, setDropDown] = useState(false);
 
+  const numSchedules = schedules.length;
+
+  const [numberOfSchedules, setNumberOfSchedules] = useState(numSchedules - 1);
+
+  const changeSchedules = () => {
+    if (percentage === 0 && numSchedules > 0) {
+      setPercentage(100);
+      setIsRunning(false);
+      const updatePos = numSchedules - 1 - numberOfSchedules;
+      schedules[updatePos].status = true;
+      handleReset();
+      setNumberOfSchedules((prev) => prev - 1);
+      console.log("Schedule completed");
+      console.log(updatePos);
+      console.log(numberOfSchedules);
+      console.log(schedules);
+    }
+    if (percentage === 0 && numberOfSchedules === 0) {
+      console.log("All schedules completed");
+    }
+  };
+
   const timerValues = [
     { time: { hours: 1, minutes: 0, seconds: 0 } },
     { time: { hours: 0, minutes: 1, seconds: 0 } },
@@ -337,6 +336,10 @@ const page = () => {
     //   setPercentage((prev) => (prev > 0 ? prev - 1 : 0));
     // }, 1000); // Adjust for faster/slower timer
     // return () => clearInterval(interval);
+    if (percentage == 0) {
+      setIsRunning(false);
+      changeSchedules();
+    }
   }, [time]);
   const handleReset = () => {
     setIsRunning(false);
@@ -359,7 +362,7 @@ const page = () => {
         <div className=" w-full grid grid-cols-2 h-[85%] grid-rows-3">
           <div className=" relative row-span-2 col-span-1 flex justify-center">
             <div className=" absolute mr-6 top-2">
-              <div className="border px-4 w-[7vw] rounded-full flex justify-around items-center gap-2 relative ">
+              <div className="border px-4 w-[7vw] rounded-full text-zinc-200  flex justify-around items-center gap-2 relative ">
                 {timerValues[timerValue].time.hours != 0 && (
                   <button>{timerValues[timerValue].time.hours} hours</button>
                 )}
@@ -381,14 +384,14 @@ const page = () => {
                 <div
                   className={`${
                     !dropDown && "invisible"
-                  } visible absolute top-7 -right-[5%] rounded-md bg-zinc-50  border py-1 w-[15vh]`}
+                  } visible absolute top-7 -right-[5%] rounded-md bg-zinc-700 border-zinc-800  border py-1 w-[15vh]`}
                 >
                   {timerValues.map((data, key) => (
                     <div key={key}>
                       {data != timerValues[timerValue] && (
                         <div
                           key={key}
-                          className=" w-full px-2 hover:bg-zinc-200 hover:cursor-pointer"
+                          className=" w-full px-2 hover:bg-zinc-200 hover:text-zinc-900 hover:cursor-pointer"
                           onClick={() => setTimerValue(key)}
                         >
                           {data.time.hours != 0 && (
@@ -453,20 +456,33 @@ const page = () => {
             <div className=" w-full h-full border rounded-xl">
               <p className=" px-4 pt-2 text-lg font-semibold">Sessions</p>
               <div className=" w-full h-[80%] px-4 py-2">
-                <div className="grid grid-cols-12 grid-rows-6  w-full h-full">
+                <div className="grid grid-cols-12 grid-rows-8  w-full h-full">
                   {schedules.map((data, key) => (
                     <div
                       key={key}
                       className={` col-span-1 row-span-1 rounded-lg border ${
-                        data.status && "bg-black"
+                        data.status && "bg-slate-800"
                       }`}
                     ></div>
                   ))}
                 </div>
               </div>
               <div className=" px-4 flex gap-2">
-                <p>Total Number of Schedules:20</p>
-                <p> Completed: 2</p>
+                <div>
+                  Total Number of Schedules:
+                  <input
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
+                    className=" w-10 border-b outline-none text-center text-lg font-medium"
+                    type="number"
+                  ></input>
+                </div>
+                <div className=" items-center flex gap-2">
+                  Completed:
+                  <p className="w-10 text-lg font-medium text-center">
+                    {number}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
