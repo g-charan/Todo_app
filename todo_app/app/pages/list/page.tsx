@@ -49,7 +49,7 @@ const page = () => {
       <div className="w-2/3 mt-10 flex flex-col gap-4">
         <div className="self-end px-4">
           <button
-            className="flex gap-4 py-2 border rounded-lg px-6"
+            className="flex gap-4 py-2 border border-zinc-600 rounded-lg px-6"
             onClick={() => setShow(true)}
           >
             <p>Add New List</p>
@@ -60,10 +60,10 @@ const page = () => {
           <Link href={data.type ? data.type : ""} key={key}>
             <div
               key={key}
-              className=" flex flex-col gap-1 px-4 rounded-3xl hover:scale-[102%] transition-all duration-100 cursor-pointer relative border-2 py-6"
+              className=" bg-zinc-900 flex flex-col gap-1 px-4 rounded-lg hover:scale-[102%] transition-all duration-100 cursor-pointer relative border border-zinc-700 py-6"
             >
               <p className=" text-lg">{data.name}</p>
-              <p className=" text-sm font-semibold">
+              <p className=" text-sm text-zinc-500">
                 This is my personal todo list
               </p>
               {data.element}

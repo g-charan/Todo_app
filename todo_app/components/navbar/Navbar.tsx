@@ -13,17 +13,17 @@ const Navbar = () => {
   const [users, setUsers] = useState(false);
   return (
     <div className=" flex w-full justify-center ">
-      <div className=" px-8 py-4 rounded-full flex justify-between w-1/3 border-2">
+      <div className=" px-8 py-4 rounded-full flex justify-between w-1/3 border bg-zinc-900 border-zinc-700">
         <Link href={"/pages/list"}>
           <House className=" hover:cursor-pointer" />
         </Link>
-        <Link href={""}>
+        <Link href={"/pages/metrics"}>
           <ChartColumn className=" hover:cursor-pointer" />
         </Link>
         <Link href={""}>
           <SunMoon className=" hover:cursor-pointer" />
         </Link>
-        <Link href={""}>
+        <Link href={"/pages/settings"}>
           <Settings className=" hover:cursor-pointer" />
         </Link>
 

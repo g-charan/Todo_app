@@ -11,142 +11,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const CircularProgressBar = ({ percentage }: any) => {
-  const strokeWidth = 10;
-  const radius = 50 - strokeWidth / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (percentage / 100) * circumference;
-
-  return (
-    <svg
-      className="w-24 h-24 transform "
-      width={"100%"}
-      height={"100%"}
-      viewBox="0 0 100 100"
-    >
-      <circle
-        className="text-gray-300"
-        stroke="currentColor"
-        fill="white"
-        strokeWidth={0}
-        r={radius}
-        cx="50"
-        cy="50"
-      />
-      <circle
-        className="text-blue-500 transition-all duration-300 ease-out"
-        stroke="currentColor"
-        fill="blue"
-        strokeLinecap="round"
-        r={radius}
-        cx="50"
-        cy="50"
-        style={{
-          strokeDasharray: circumference,
-          strokeDashoffset: offset,
-        }}
-      />
-      <text
-        x="50"
-        y="50"
-        textAnchor="middle"
-        dominantBaseline="central"
-        className="text-xl font-bold fill-current text-gray-700"
-      >
-        {percentage}%
-      </text>
-    </svg>
-  );
-};
-
-const TimerCircularProgressBar = ({ percentage, size = 150 }: any) => {
-  const strokeWidth = 10;
-  const radius = size / 2 - strokeWidth / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (percentage / 100) * circumference;
-
-  // Dynamically calculate the timer hand position
-  const angle = (percentage / 100) * 360;
-  const handLength = radius + 5; // Shorter than the outer radius
-  const handX =
-    size / 2 + handLength * Math.cos((angle - 90) * (Math.PI / 180));
-  const handY =
-    size / 2 + handLength * Math.sin((angle - 90) * (Math.PI / 180));
-
-  return (
-    <div
-      className="relative flex items-center justify-center"
-      style={{ width: size, height: size }}
-    >
-      {/* Outer Circle */}
-      <svg
-        className="absolute"
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-      >
-        {/* Background Circle */}
-        <circle
-          className="text-gray-300"
-          stroke="currentColor"
-          fill="transparent"
-          strokeWidth={strokeWidth}
-          r={radius}
-          cx={size / 2}
-          cy={size / 2}
-        />
-        {/* Progress Circle */}
-        <circle
-          className="text-blue-500 transition-all duration-300 ease-out"
-          stroke="currentColor"
-          fill="transparent"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          r={radius}
-          cx={size / 2}
-          cy={size / 2}
-          style={{
-            strokeDasharray: circumference,
-            strokeDashoffset: offset,
-          }}
-        />
-      </svg>
-      {/* Filled Color Circle */}
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: size,
-          height: size,
-          background: `conic-gradient(#3b82f6 ${
-            percentage * 3.6
-          }deg, #e5e7eb 0deg)`,
-        }}
-      ></div>
-      {/* Timer Hand */}
-      <svg
-        className="absolute z-10"
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-      >
-        <line
-          x1={size / 2}
-          y1={size / 2}
-          x2={handX}
-          y2={handY}
-          stroke="black"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </svg>
-      {/* Timer Text */}
-      <div className="absolute w-4 h-4 flex justify-center rounded-full bg-black">
-        {/* <div className=" z-10 w-4 h-4 bg-black shadow-sm border shadow-white self-center rounded-full"></div> */}
-      </div>
-    </div>
-  );
-};
-
 const CountdownTimer = ({
   hours = 0,
   minutes = 0,
@@ -349,7 +213,7 @@ const page = () => {
   useEffect(() => setTime(timerValues[timerValue].time), [timerValue]);
   return (
     <div className="flex w-full h-[85%] justify-center ">
-      <div className="w-2/3 mt-10 flex border rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
+      <div className="w-2/3 bg-zinc-900 mt-10 flex border rounded-2xl shadow-lg px-4 border-zinc-700 h-full flex-col gap-4">
         <div className="  py-4 gap-8 w-full flex">
           <ArrowLeft
             size={20}
@@ -453,14 +317,14 @@ const page = () => {
             </div>
           </div>
           <div className=" row-span-2 col-span-1  p-4">
-            <div className=" w-full h-full border rounded-xl">
+            <div className=" w-full h-full border border-zinc-500 rounded-xl">
               <p className=" px-4 pt-2 text-lg font-semibold">Sessions</p>
               <div className=" w-full h-[80%] px-4 py-2">
                 <div className="grid grid-cols-12 grid-rows-8  w-full h-full">
                   {schedules.map((data, key) => (
                     <div
                       key={key}
-                      className={` col-span-1 row-span-1 rounded-lg border ${
+                      className={` col-span-1 row-span-1 rounded-lg border border-zinc-600 ${
                         data.status && "bg-slate-800"
                       }`}
                     ></div>
@@ -487,15 +351,15 @@ const page = () => {
             </div>
           </div>
           <div className=" row-span-1 col-span-2 ">
-            <p className=" px-4 font-semibold w-full py-1">Notes</p>
+            <p className=" px-4 font-semibold w-full py-1">Quotes</p>
             <div className=" h-[80%] flex gap-2 px-4">
-              <div className=" relative w-2/3 flex border p-2 rounded-xl flex-col   ">
-                <textarea className=" w-full h-4/5  rounded-xl border-none outline-none p-4"></textarea>
+              <div className=" relative w-2/3 flex border border-zinc-500 p-2 rounded-xl flex-col   ">
+                {/* <textarea className=" w-full h-4/5  rounded-xl border-none outline-none p-4"></textarea>
                 <button className=" self-end px-4 text-sm border rounded-md py-1 bg-zinc-400">
                   Send
-                </button>
+                </button> */}
               </div>
-              <div className=" flex-1 rounded-xl  h-full border"></div>
+              <div className=" flex-1 rounded-xl  h-full border border-zinc-500"></div>
             </div>
           </div>
         </div>

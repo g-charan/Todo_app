@@ -1,12 +1,21 @@
 "use client";
 
-import { ArrowLeft, Pencil, Trash } from "lucide-react";
+import Calendar from "@/components/calendar/Calendar";
+import CustomDialog from "@/components/dialog/CustomDialog";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ListFilter,
+  Pencil,
+  Trash,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const page = () => {
   const route = useRouter();
   const [number, setNumber] = useState<any>(0);
+  const [showDialog, setShowDialog] = useState(false);
   const Items = [
     { name: "Charan's Birthday", pos: 1 },
     { name: "Task 1", pos: 2 },
@@ -18,10 +27,32 @@ const page = () => {
     console.log(data.pos);
   };
 
+  const CustomElement2 = () => {
+    return (
+      <>
+        <div className="flex justify-between w-full px-4 py-2 gap-1">
+          <Calendar className="text-black w-1/2 " />
+          <div>
+            <input
+              type="text"
+              className=" w-full border-b p-2 outline-none text-black"
+              placeholder="smtg"
+            ></input>
+            <input
+              type="text"
+              className=" w-full border-b p-2 outline-none text-black"
+              placeholder="Category"
+            ></input>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="flex w-full h-[85%] justify-center ">
-      <div className="w-2/3 mt-10 flex border rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
-        <div className=" border-b py-4 gap-8 w-full flex">
+      <div className="w-2/3 bg-zinc-900 mt-10 flex border border-zinc-700 rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
+        <div className=" border-b border-zinc-800 py-4 gap-8 w-full flex">
           <ArrowLeft
             size={20}
             onClick={() => route.push("/pages/list")}
@@ -29,34 +60,35 @@ const page = () => {
           />
           <p> Simple EVENT List</p>
         </div>
+        <CustomDialog
+          showDialog={showDialog}
+          setShowDialog={setShowDialog}
+          CustomElement2={<CustomElement2 />}
+        ></CustomDialog>
         <div className="w-full py-4  px-10">
           <div className="  flex justify-center w-full gap-8 h-fit ">
-            <input
-              type="text"
-              className=" w-2/3 border-b p-2 outline-none"
-              placeholder="smtg"
-            ></input>
-            <input
-              type="text"
-              className=" border-b p-2 outline-none"
-              placeholder="Category"
-            ></input>
-            <button className=" px-8 border hover:scale-[102%] rounded-xl">
-              Add
+            <button
+              className=" px-8 border hover:scale-[102%] rounded-md py-4 text-lg"
+              onClick={() => setShowDialog(true)}
+            >
+              Add a new Event
             </button>
           </div>
         </div>
         <div className="w-full py-4  px-10">
           <div className=" flex justify-end w-full ">
             <div className=" self-end flex gap-4">
-              <button className=" px-8 border text-sm rounded-xl">
-                Filter
+              <button className=" hover:bg-zinc-200 px-6 flex gap-2 py-1 border text-sm rounded-xl">
+                <ListFilter size={16} className=" self-center" />
+                <p>Filter</p>
               </button>
-              <button className=" px-8 border text-sm rounded-xl">
-                All time
+              <button className=" px-4 hover:bg-zinc-200 flex gap-2 py-1 border text-sm rounded-xl">
+                <p>All Time</p>
+                <ChevronDown size={16} className=" self-center" />
               </button>
-              <button className=" px-8 border text-sm rounded-xl">
-                Sort by
+              <button className=" px-4 hover:bg-zinc-200 flex gap-2 py-1 border text-sm rounded-xl">
+                <p>Sort by</p>
+                <ChevronDown size={16} className=" self-center" />
               </button>
             </div>
           </div>
@@ -66,7 +98,7 @@ const page = () => {
             <div
               key={key}
               onMouseOver={() => HandleEnter(data)}
-              className="  px-8 rounded-xl hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border-2 py-4 "
+              className="  px-8 rounded-xl hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border border-zinc-500 py-4 "
             >
               <div className="flex gap-4">
                 <p className=" self-center text-base">{data.name}</p>

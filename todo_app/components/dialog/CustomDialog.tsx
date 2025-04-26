@@ -9,7 +9,7 @@ type props = {
 };
 
 const CustomDialog = ({ showDialog, setShowDialog, CustomElement2 }: props) => {
-  const [darkTheme, setDarkTheme] = useState(false);
+  const [darkTheme, setDarkTheme] = useState(true);
   const boxRef = useRef<any>();
 
   const handler = (e: any) => {
@@ -26,14 +26,14 @@ const CustomDialog = ({ showDialog, setShowDialog, CustomElement2 }: props) => {
       className={`flex justify-center ${
         !showDialog && "hidden"
       } absolute top-0 ${
-        darkTheme && "bg-zinc-900"
+        darkTheme && "bg-zinc-950"
       } bg-gray-800 bg-opacity-80 w-[100vw] z-10 h-[100vh]`}
       onClick={(e) => handler(e)}
     >
       <div className=" self-center">
         <div
           className={`bg-white rounded-xl ${
-            darkTheme && "bg-zinc-800 text-white"
+            darkTheme && "bg-zinc-900 text-white"
           }`}
           ref={boxRef}
         >

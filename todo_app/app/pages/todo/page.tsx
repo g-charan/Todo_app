@@ -1,5 +1,6 @@
 "use client";
 
+import { getData } from "@/components/server/todo";
 import {
   ArrowLeft,
   Check,
@@ -23,6 +24,18 @@ const page = () => {
   ];
   const mouseRef = useRef<any>();
 
+  const getTodos = async () => {
+    // const res = await fetch("http://localhost:5000/getTodos");
+    // if (!res.ok) {
+    //   throw new Error("Failed to fetch data");
+    // }
+    // const data = await res.json();
+    // console.log(data);
+    const data = await getData();
+    console.log(data);
+  };
+  const [data, setData] = useState<any>([]);
+
   const HandleEnter = (data: any) => {
     setNumber(data.pos);
     console.log(data.pos);
@@ -36,7 +49,7 @@ const page = () => {
 
   return (
     <div className="flex w-full h-[85%] justify-center ">
-      <div className="w-2/3 mt-10 flex border border-zinc-700 rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
+      <div className="w-2/3 mt-10 flex border bg-zinc-900 border-zinc-700 rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
         <div className=" border-b border-zinc-800 py-4 gap-8 w-full flex">
           <ArrowLeft
             size={20}
@@ -62,7 +75,12 @@ const page = () => {
         <div className="w-full py-2  px-10">
           <div className="relative flex justify-end w-full ">
             <div className=" self-end flex gap-4">
-              <button className=" hover:bg-zinc-200 px-6 flex gap-2 py-1 border text-sm rounded-xl">
+              <button
+                onClick={() => {
+                  getTodos();
+                }}
+                className=" hover:bg-zinc-200 px-6 flex gap-2 py-1 border text-sm rounded-xl"
+              >
                 <ListFilter size={16} className=" self-center" />
                 <p>Filter</p>
               </button>
@@ -89,7 +107,7 @@ const page = () => {
               ref={mouseRef}
               key={key}
               onMouseOver={() => HandleEnter(data)}
-              className="  px-8 rounded-md hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border py-2 "
+              className="  px-8 rounded-md hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border border-zinc-500 py-2 "
             >
               <p className=" ">{data.name}</p>
               <div className=" absolute left-[45%]"></div>
