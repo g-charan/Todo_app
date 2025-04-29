@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteTodo, getData, postTodo } from "@/components/server/todo";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Check,
@@ -12,132 +13,117 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const page = () => {
-  const route = useRouter();
-  const [number, setNumber] = useState<any>(0);
-  const [text, setText] = useState("");
-  const mouseRef = useRef<any>();
-  const [Items, setItems] = useState<any>([]);
+const Page = () => {
+  const router = useRouter();
+  const [hoveredPos, setHoveredPos] = useState<number | null>(null);
+  const [newTask, setNewTask] = useState("");
+  const [items, setItems] = useState<any[]>([]);
+  const mouseRef = useRef(null);
 
-  const getTodos = async () => {
+  const fetchTodos = async () => {
     const todoList = await getData();
     setItems(todoList);
   };
 
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const { isLoading } = useQuery({
+    queryKey: ["todos"],
+    queryFn: getData,
+  });
+
+  if (isLoading) return <div className="text-center py-10">Loading...</div>;
+
   const addTodo = async (name: string) => {
-    console.log(name);
-    if (name.length == 0) {
+    if (!name.trim()) {
       alert("Please enter a task");
       return;
     }
     const res = await postTodo(name);
-    console.log(res);
-    if (res == "success") {
-      getTodos();
+    if (res === "success") {
+      fetchTodos();
+      setNewTask("");
     }
   };
 
-  const removeTodo = async (pos: any) => {
-    console.log(pos);
-    const res: any = await deleteTodo(pos);
-    if (res == "success") {
-      getTodos();
-    }
-    console.log(res);
+  const removeTodo = async (pos: number) => {
+    const res = await deleteTodo(pos);
+    if (res === "success") fetchTodos();
   };
-
-  const HandleEnter = (data: any) => {
-    setNumber(data.pos);
-    console.log(data.pos);
-  };
-
-  const HandleLeave = () => {
-    setTimeout(() => {
-      setNumber(0);
-    }, 100);
-  };
-
-  useEffect(() => {
-    getTodos();
-  }, []);
 
   return (
-    <div className="flex w-full h-[85%] justify-center ">
-      <div className="w-2/3 mt-10 flex border bg-zinc-900 border-zinc-700 rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
-        <div className=" border-b border-zinc-800 py-4 gap-8 w-full flex">
+    <div className="flex justify-center items-start  w-full bg-zinc-950 text-white px-4 pt-10  h-[85%] ">
+      <div className="w-2/3  bg-zinc-900 border border-zinc-800 rounded-2xl shadow-md flex flex-col gap-6 p-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 border-b border-zinc-700 pb-4">
           <ArrowLeft
             size={20}
-            onClick={() => route.push("/pages/list")}
-            className=" hover:cursor-pointer self-center"
+            onClick={() => router.push("/pages/list")}
+            className="cursor-pointer hover:text-zinc-400 transition"
           />
-          <span className=" text-lg ">Simple TODO list</span>
+          <h1 className="text-xl font-semibold">Simple TODO List</h1>
         </div>
-        <div className="w-full py-4  px-10">
-          <div className="  flex justify-center w-full gap-8 h-fit ">
-            <input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              type="text"
-              className=" w-2/3 border-b px-2 py-1 outline-none text-zinc-900 rounded-md"
-              placeholder="Title/Heading"
-            ></input>
-            <button
-              className=" px-8 border hover:scale-[102%] rounded-xl"
-              onClick={() => {
-                addTodo(text);
-                console.log(text);
-                setText("");
-              }}
-            >
-              Add
+
+        {/* Input */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+          <input
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            type="text"
+            placeholder="Enter a new task"
+            className="w-full sm:w-2/3 px-4 py-2 rounded-lg border border-zinc-600 bg-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+          />
+          <button
+            onClick={() => addTodo(newTask)}
+            className="px-6 py-2 rounded-lg bg-zinc-700 hover:bg-zinc-600 transition"
+          >
+            Add
+          </button>
+        </div>
+
+        {/* Controls */}
+        <div className="flex justify-between items-center text-sm text-zinc-400 border-b border-zinc-700 pb-4">
+          <div className="flex gap-3">
+            <button className="flex items-center gap-2 px-4 py-1 border border-zinc-600 rounded-md hover:bg-zinc-800 transition">
+              <ListFilter size={16} />
+              Filter
+            </button>
+            <button className="flex items-center gap-2 px-4 py-1 border border-zinc-600 rounded-md hover:bg-zinc-800 transition">
+              All Time <ChevronDown size={16} />
+            </button>
+            <button className="flex items-center gap-2 px-4 py-1 border border-zinc-600 rounded-md hover:bg-zinc-800 transition">
+              Sort by <ChevronDown size={16} />
             </button>
           </div>
-        </div>
-        <div className="w-full py-2  px-10">
-          <div className="relative flex justify-end w-full ">
-            <div className=" self-end flex gap-4">
-              <button className=" hover:bg-zinc-200 px-6 flex gap-2 py-1 border text-sm rounded-xl">
-                <ListFilter size={16} className=" self-center" />
-                <p>Filter</p>
-              </button>
-              <button className=" px-4 hover:bg-zinc-200 flex gap-2 py-1 border text-sm rounded-xl">
-                <p>All Time</p>
-                <ChevronDown size={16} className=" self-center" />
-              </button>
-              <button className=" px-4 hover:bg-zinc-200 flex gap-2 py-1 border text-sm rounded-xl">
-                <p>Sort by</p>
-                <ChevronDown size={16} className=" self-center" />
-              </button>
-            </div>
-            <div className="absolute -bottom-8 right-0 flex text-center items-center gap-1">
-              <p className=" font-light italic text-xs text-zinc-500 ">
-                Total number of tasks is
-              </p>
-              <p className=" text-sm text-zinc-300">20</p>
-            </div>
+          <div className="italic text-xs">
+            Total tasks: <span className="font-medium">{items.length}</span>
           </div>
         </div>
-        <div className=" relative flex flex-col gap-2 overflow-auto py-2 px-4 w-full ">
-          {Items.map((data: any, key: any) => (
+
+        {/* Task List */}
+        <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-1">
+          {items.map((item, key) => (
             <div
-              ref={mouseRef}
               key={key}
-              onMouseOver={() => HandleEnter(data)}
-              className="  px-8 rounded-md hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border border-zinc-500 py-2 "
+              onMouseEnter={() => setHoveredPos(item.pos)}
+              onMouseLeave={() => setHoveredPos(null)}
+              className="flex justify-between items-center px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition group"
             >
-              <p className=" ">{data.name}</p>
-              <div className=" absolute left-[45%]"></div>
-              {data.pos == number && (
-                <div className={`flex gap-4  h-full w-2/3 justify-end`}>
-                  <button className=" hover:scale-110 hover:bg-zinc-200 border px-4 rounded-lg text-sm">
+              <span className="truncate">{item.name}</span>
+
+              {hoveredPos === item.pos && (
+                <div className="flex gap-3">
+                  <button className="p-2 rounded-md hover:bg-zinc-600 transition">
                     <Check size={18} />
                   </button>
-                  <button className=" hover:scale-110 hover:bg-zinc-200 border px-4 rounded-lg text-sm">
+                  <button className="p-2 rounded-md hover:bg-zinc-600 transition">
                     <Pencil size={18} />
                   </button>
                   <button
-                    onClick={() => removeTodo(data.pos)}
-                    className=" hover:scale-110 hover:bg-zinc-200 border px-4 rounded-lg text-sm"
+                    onClick={() => removeTodo(item.pos)}
+                    className="p-2 rounded-md hover:bg-red-500 transition"
                   >
                     <Trash size={18} />
                   </button>
@@ -151,4 +137,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

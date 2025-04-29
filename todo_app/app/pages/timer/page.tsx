@@ -1,5 +1,8 @@
 "use client";
 
+import { CountdownTimer } from "@/components/timer/CountdownTimer";
+import MusicPlayer from "@/components/timer/MusicPlayer";
+import QuoteGenerator from "@/components/timer/QuoteGenerator";
 import {
   ArrowLeft,
   ChevronDown,
@@ -11,355 +14,210 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const CountdownTimer = ({
-  hours = 0,
-  minutes = 0,
-  seconds = 0,
-  isRunning,
-  setIsRunning,
-  time,
-  setTime,
-  setPercentage,
-}: any) => {
-  const totalTime = time.hours * 3600 + time.minutes * 60 + time.seconds; // Total time in seconds
-
-  useEffect(() => {
-    let timer: any;
-
-    // let newHours = hours,
-    //   newMinutes = minutes,
-    //   newSeconds = seconds;
-
-    // if (seconds > 0) {
-    //   newSeconds -= 1;
-    // } else if (minutes > 0) {
-    //   newMinutes -= 1;
-    //   newSeconds = 59;
-    // } else if (hours > 0) {
-    //   newHours -= 1;
-    //   newMinutes = 59;
-    //   newSeconds = 59;
-    // }
-    if (isRunning) {
-      timer = setInterval(() => {
-        updateCountdown();
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [time, isRunning]);
-
-  const updateCountdown = () => {
-    const { hours, minutes, seconds } = time;
-
-    if (hours === 0 && minutes === 0 && seconds === 0) {
-      setIsRunning(false);
-      return;
-    }
-    let newHours = hours,
-      newMinutes = minutes,
-      newSeconds = seconds;
-
-    if (seconds > 0) {
-      newSeconds -= 1;
-    } else if (minutes > 0) {
-      newMinutes -= 1;
-      newSeconds = 59;
-    } else if (hours > 0) {
-      newHours -= 1;
-      newMinutes = 59;
-      newSeconds = 59;
-    }
-
-    if (seconds > 0) {
-      setTime((prevTime: any) => ({
-        ...prevTime,
-        seconds: prevTime.seconds - 1,
-      }));
-    } else if (minutes > 0) {
-      setTime((prevTime: any) => ({
-        ...prevTime,
-        seconds: 59,
-        minutes: prevTime.minutes - 1,
-      }));
-    } else if (hours > 0) {
-      setTime((prevTime: any) => ({
-        ...prevTime,
-        seconds: 59,
-        minutes: 59,
-        hours: prevTime.hours - 1,
-      }));
-    }
-    const remainingTime = newHours * 3600 + newMinutes * 60 + newSeconds;
-    const elapsedTime = totalTime - remainingTime;
-    console.log((remainingTime / elapsedTime) * 100);
-    setPercentage((remainingTime / totalTime) * 100);
-  };
-
-  const handlePause = () => setIsRunning(false);
-
-  const handleStart = () => setIsRunning(true);
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setTime({ hours, minutes, seconds });
-    setPercentage(100);
-  };
-  return (
-    <>
-      <div className="flex flex-col items-center">
-        <span className="bg-zinc-700 text-white text-lg font-semibold p-4  shadow-md w-20 text-center">
-          {String(time.hours).padStart(2, "0")}
-        </span>
-        <span className="text-sm text-gray-500 mt-2">Hours</span>
-      </div>
-      <div className="flex flex-col items-center">
-        <span className="bg-zinc-700 text-white text-lg font-semibold p-4  shadow-md w-20 text-center">
-          {String(time.minutes).padStart(2, "0")}
-        </span>
-        <span className="text-sm text-gray-500 mt-2">Minutes</span>
-      </div>
-      <div className="flex flex-col items-center">
-        <span className="bg-zinc-700 text-white text-lg font-semibold p-4  shadow-md w-20 text-center">
-          {String(time.seconds).padStart(2, "0")}
-        </span>
-        <span className="text-sm text-gray-500 mt-2">Seconds</span>
-      </div>
-    </>
-  );
-};
-
-const page = () => {
+const TimerPage = () => {
+  const router = useRouter();
   const [percentage, setPercentage] = useState(100);
-  // const [isRunning, setIsRunning] = useState(false);
-  const route = useRouter();
-  const [number, setNumber] = useState<any>(0);
-  const Items = [
-    { name: "smtg" },
-    { name: "smtg" },
-    { name: "smtg" },
-    { name: "smtg" },
-  ];
-  const schedules = [
-    { name: 1, status: true },
-    { name: 1, status: true },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-    { name: 1 },
-  ];
-
   const [isRunning, setIsRunning] = useState(false);
+  const [selectedTimerIndex, setSelectedTimerIndex] = useState(0);
+  const [showTimerDropdown, setShowTimerDropdown] = useState(false);
+  const [completedSessions, setCompletedSessions] = useState(0);
 
-  const [timerValue, setTimerValue] = useState(0);
-  const [dropDown, setDropDown] = useState(false);
+  // Timer configurations
+  const timerPresets = [
+    { label: "1 hour", time: { hours: 1, minutes: 0, seconds: 0 } },
+    { label: "1 minute", time: { hours: 0, minutes: 1, seconds: 0 } },
+    { label: "2 seconds", time: { hours: 0, minutes: 0, seconds: 2 } },
+  ];
 
-  const numSchedules = schedules.length;
+  // Session tracking
+  const totalSessions = 20;
+  const sessions = Array(totalSessions)
+    .fill(null)
+    .map((_, i) => ({
+      id: i,
+      completed: i < completedSessions,
+    }));
 
-  const [numberOfSchedules, setNumberOfSchedules] = useState(numSchedules - 1);
+  // Current timer state
+  const [currentTime, setCurrentTime] = useState(
+    timerPresets[selectedTimerIndex].time
+  );
 
-  const changeSchedules = () => {
-    if (percentage === 0 && numSchedules > 0) {
-      setPercentage(100);
-      setIsRunning(false);
-      const updatePos = numSchedules - 1 - numberOfSchedules;
-      schedules[updatePos].status = true;
+  // Handle timer completion
+  const handleTimerComplete = () => {
+    if (completedSessions < totalSessions) {
+      setCompletedSessions((prev) => prev + 1);
       handleReset();
-      setNumberOfSchedules((prev) => prev - 1);
-      console.log("Schedule completed");
-      console.log(updatePos);
-      console.log(numberOfSchedules);
-      console.log(schedules);
-    }
-    if (percentage === 0 && numberOfSchedules === 0) {
-      console.log("All schedules completed");
+    } else {
+      console.log("All sessions completed");
     }
   };
 
-  const timerValues = [
-    { time: { hours: 1, minutes: 0, seconds: 0 } },
-    { time: { hours: 0, minutes: 1, seconds: 0 } },
-    { time: { hours: 0, minutes: 0, seconds: 2 } },
-  ];
-  const [time, setTime] = useState(timerValues[timerValue].time);
-  useEffect(() => {
-    // const interval = setInterval(() => {
-    //   setPercentage((prev) => (prev > 0 ? prev - 1 : 0));
-    // }, 1000); // Adjust for faster/slower timer
-    // return () => clearInterval(interval);
-    if (percentage == 0) {
-      setIsRunning(false);
-      changeSchedules();
-    }
-  }, [time]);
+  // Reset timer
   const handleReset = () => {
     setIsRunning(false);
-    setTime(timerValues[timerValue].time);
+    setCurrentTime(timerPresets[selectedTimerIndex].time);
     setPercentage(100);
   };
-  useEffect(() => setTime(timerValues[timerValue].time), [timerValue]);
-  return (
-    <div className="flex w-full h-[85%] justify-center ">
-      <div className="w-2/3 bg-zinc-900 mt-10 flex border rounded-2xl shadow-lg px-4 border-zinc-700 h-full flex-col gap-4">
-        <div className="  py-4 gap-8 w-full flex">
-          <ArrowLeft
-            size={20}
-            onClick={() => route.push("/pages/list")}
-            className=" hover:cursor-pointer self-center"
-          />
 
-          <p> Simple Timer</p>
+  // Update timer when preset changes
+  useEffect(() => {
+    setCurrentTime(timerPresets[selectedTimerIndex].time);
+    handleReset();
+  }, [selectedTimerIndex]);
+
+  // Check for timer completion
+  useEffect(() => {
+    if (percentage === 0) {
+      setIsRunning(false);
+      handleTimerComplete();
+    }
+  }, [percentage]);
+
+  return (
+    <div className="flex justify-center w-full h-[85%]">
+      <div className="flex flex-col w-2/3 h-full gap-4 p-4 mt-10 border rounded-2xl bg-zinc-900 border-zinc-700 shadow-lg">
+        {/* Header */}
+        <div className="flex items-center w-full gap-4 py-4">
+          <button
+            onClick={() => router.push("/pages/list")}
+            className="p-1 rounded-full hover:bg-zinc-800"
+          >
+            <ArrowLeft size={20} className="text-zinc-200" />
+          </button>
+          <h1 className="text-xl font-medium text-zinc-100">Focus Timer</h1>
         </div>
-        <div className=" w-full grid grid-cols-2 h-[85%] grid-rows-3">
-          <div className=" relative row-span-2 col-span-1 flex justify-center">
-            <div className=" absolute mr-6 top-2">
-              <div className="border px-4 w-[7vw] rounded-full text-zinc-200  flex justify-around items-center gap-2 relative ">
-                {timerValues[timerValue].time.hours != 0 && (
-                  <button>{timerValues[timerValue].time.hours} hours</button>
-                )}
-                {timerValues[timerValue].time.minutes != 0 && (
-                  <button>
-                    {timerValues[timerValue].time.minutes} minutes
-                  </button>
-                )}
-                {timerValues[timerValue].time.seconds != 0 && (
-                  <button>
-                    {timerValues[timerValue].time.seconds} seconds
-                  </button>
-                )}
-                <ChevronDown
-                  size={18}
-                  className=" hover:cursor-pointer"
-                  onClick={() => setDropDown(!dropDown)}
-                />
-                <div
-                  className={`${
-                    !dropDown && "invisible"
-                  } visible absolute top-7 -right-[5%] rounded-md bg-zinc-700 border-zinc-800  border py-1 w-[15vh]`}
+
+        {/* Main Content */}
+        <div className="grid w-full h-[85%] grid-cols-2 grid-rows-3 gap-4">
+          {/* Timer Section */}
+          <div className="relative flex flex-col items-center justify-center row-span-2 col-span-1">
+            {/* Timer Preset Selector */}
+            <div className="absolute top-0 right-0">
+              <div className="relative">
+                <button
+                  onClick={() => setShowTimerDropdown(!showTimerDropdown)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm border rounded-full text-zinc-200 border-zinc-600 bg-zinc-800 hover:bg-zinc-700"
                 >
-                  {timerValues.map((data, key) => (
-                    <div key={key}>
-                      {data != timerValues[timerValue] && (
-                        <div
-                          key={key}
-                          className=" w-full px-2 hover:bg-zinc-200 hover:text-zinc-900 hover:cursor-pointer"
-                          onClick={() => setTimerValue(key)}
-                        >
-                          {data.time.hours != 0 && (
-                            <button>{data.time.hours} hours</button>
-                          )}
-                          {data.time.minutes != 0 && (
-                            <button>{data.time.minutes} minutes</button>
-                          )}
-                          {data.time.seconds != 0 && (
-                            <button>{data.time.seconds} seconds</button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className=" flex flex-col self-center">
-              {/* <TimerCircularProgressBar percentage={percentage} size={300} /> */}
-              {/* <div className=" flex justify-center py-4">
-                <p className=" text-lg font-medium">{percentage}s</p>
-              </div> */}
-              <div className=" flex justify-center py-4 scale-[120%] mr-5">
-                {/* <p className=" text-lg font-medium">{percentage}s</p> */}
-                <CountdownTimer
-                  hours={time.hours}
-                  isRunning={isRunning}
-                  setIsRunning={setIsRunning}
-                  time={time}
-                  setTime={setTime}
-                  setPercentage={setPercentage}
-                />
-              </div>
-              <div className=" flex justify-center py-2 gap-4 mt-5 mr-5">
-                {isRunning ? (
-                  <Pause
-                    onClick={() => setIsRunning(false)}
-                    className=" hover:cursor-pointer"
-                  />
-                ) : (
-                  <Play
-                    onClick={() => setIsRunning(true)}
-                    className=" hover:cursor-pointer"
-                  />
+                  {timerPresets[selectedTimerIndex].label}
+                  <ChevronDown size={16} />
+                </button>
+
+                {showTimerDropdown && (
+                  <div className="absolute right-0 z-10 w-40 mt-2 overflow-hidden bg-zinc-800 border rounded-md shadow-lg border-zinc-700">
+                    {timerPresets.map(
+                      (preset, index) =>
+                        index !== selectedTimerIndex && (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setSelectedTimerIndex(index);
+                              setShowTimerDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-sm text-left text-zinc-200 hover:bg-zinc-700"
+                          >
+                            {preset.label}
+                          </button>
+                        )
+                    )}
+                  </div>
                 )}
-                <Square
-                  onClick={() => handleReset()}
-                  className=" hover:cursor-pointer"
-                />
               </div>
-              <div className=" absolute right-5 top-[40%] flex gap-2 ">
-                <div className=" flex-col">
-                  <p className=" font-semibold">Coming Next</p>
-                  <p className=" text-sm flex justify-center">5min Break</p>
+            </div>
+
+            {/* Timer Display */}
+            <CountdownTimer
+              isRunning={isRunning}
+              setIsRunning={setIsRunning}
+              time={currentTime}
+              setTime={setCurrentTime}
+              setPercentage={setPercentage}
+            />
+
+            {/* Timer Controls */}
+            <div className="flex gap-4 mt-6">
+              {isRunning ? (
+                <button
+                  onClick={() => setIsRunning(false)}
+                  className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 text-zinc-200"
+                >
+                  <Pause size={20} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsRunning(true)}
+                  className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 text-zinc-200"
+                >
+                  <Play size={20} />
+                </button>
+              )}
+              <button
+                onClick={handleReset}
+                className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 text-zinc-200"
+              >
+                <Square size={20} />
+              </button>
+            </div>
+
+            {/* Next Session Indicator */}
+            <div className="absolute flex items-center gap-2 right-4 top-1/2">
+              <div className="text-right">
+                <p className="text-sm font-medium text-zinc-200">
+                  Next Session
+                </p>
+                <p className="text-xs text-zinc-400">5 min Break</p>
+              </div>
+              <ChevronRight size={18} className="text-zinc-400" />
+            </div>
+          </div>
+
+          {/* Sessions Grid */}
+          <div className="row-span-2 col-span-1 p-4">
+            <div className="flex flex-col h-full border rounded-xl border-zinc-700">
+              <h2 className="p-4 text-lg font-semibold text-zinc-200">
+                Sessions
+              </h2>
+              <div className="grid grid-cols-10 grid-rows-2 gap-2 p-4">
+                {sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={`aspect-square rounded-lg border ${
+                      session.completed
+                        ? "bg-blue-600 border-blue-700"
+                        : "bg-zinc-800 border-zinc-700"
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between p-4 mt-auto text-sm">
+                <div className="text-zinc-400">
+                  Completed:{" "}
+                  <span className="font-medium text-zinc-200">
+                    {completedSessions}
+                  </span>
                 </div>
-                <ChevronRight className=" self-center" size={18} />
+                <div className="text-zinc-400">
+                  Total:{" "}
+                  <span className="font-medium text-zinc-200">
+                    {totalSessions}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <div className=" row-span-2 col-span-1  p-4">
-            <div className=" w-full h-full border border-zinc-500 rounded-xl">
-              <p className=" px-4 pt-2 text-lg font-semibold">Sessions</p>
-              <div className=" w-full h-[80%] px-4 py-2">
-                <div className="grid grid-cols-12 grid-rows-8  w-full h-full">
-                  {schedules.map((data, key) => (
-                    <div
-                      key={key}
-                      className={` col-span-1 row-span-1 rounded-lg border border-zinc-600 ${
-                        data.status && "bg-slate-800"
-                      }`}
-                    ></div>
-                  ))}
-                </div>
+
+          {/* Bottom Section - Quotes & Music */}
+          <div className="row-span-1 col-span-2">
+            <h2 className="px-4 py-2 text-lg font-semibold text-zinc-200">
+              Quotes
+            </h2>
+            <div className="flex h-[80%] gap-4 px-4">
+              <div className="w-2/3">
+                <QuoteGenerator />
               </div>
-              <div className=" px-4 flex gap-2">
-                <div>
-                  Total Number of Schedules:
-                  <input
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                    className=" w-10 border-b outline-none text-center text-lg font-medium"
-                    type="number"
-                  ></input>
-                </div>
-                <div className=" items-center flex gap-2">
-                  Completed:
-                  <p className="w-10 text-lg font-medium text-center">
-                    {number}
-                  </p>
-                </div>
+              <div className="flex-1">
+                <MusicPlayer />
               </div>
-            </div>
-          </div>
-          <div className=" row-span-1 col-span-2 ">
-            <p className=" px-4 font-semibold w-full py-1">Quotes</p>
-            <div className=" h-[80%] flex gap-2 px-4">
-              <div className=" relative w-2/3 flex border border-zinc-500 p-2 rounded-xl flex-col   ">
-                {/* <textarea className=" w-full h-4/5  rounded-xl border-none outline-none p-4"></textarea>
-                <button className=" self-end px-4 text-sm border rounded-md py-1 bg-zinc-400">
-                  Send
-                </button> */}
-              </div>
-              <div className=" flex-1 rounded-xl  h-full border border-zinc-500"></div>
             </div>
           </div>
         </div>
@@ -368,4 +226,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default TimerPage;

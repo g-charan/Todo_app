@@ -2,7 +2,7 @@
 import axios from "axios";
 import { revalidatePath } from "next/cache";
 
-const url = "http://localhost:5000";
+const url = "http://localhost:5000/api/todos";
 
 export const getData = async () => {
   const res = await fetch(`${url}/getTodos`);
