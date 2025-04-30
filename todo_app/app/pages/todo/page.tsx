@@ -8,7 +8,9 @@ import {
   ChevronDown,
   ListFilter,
   Pencil,
+  Plus,
   Trash,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -64,6 +66,15 @@ const Page = () => {
             className="cursor-pointer hover:text-zinc-400 transition"
           />
           <h1 className="text-xl font-semibold">Simple TODO List</h1>
+          <div className="flex-1 flex justify-end px-2 gap-1">
+            <div className=" items-center gap-1 flex px-2 py-1 text-sm bg-slate-600 rounded-md border border-slate-700 ">
+              Deep work{" "}
+              <X size={16} className=" text-zinc-400 cursor-pointer" />
+            </div>
+            <div className=" flex justify-center items-center px-2 py-1 border border-zinc-800 rounded-md bg-zinc-800">
+              <Plus size={18} className=" cursor-pointer" />
+            </div>
+          </div>
         </div>
 
         {/* Input */}

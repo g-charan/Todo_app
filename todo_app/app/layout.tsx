@@ -1,3 +1,4 @@
+import { MetricsProvider } from "@/components/context/metrics";
 import QueryProvider from "@/components/QueryProvider";
 import "./globals.css";
 
@@ -9,7 +10,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={``}>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <MetricsProvider>{children}</MetricsProvider>
+        </QueryProvider>
       </body>
     </html>
   );

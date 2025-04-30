@@ -2,133 +2,196 @@
 
 import Calendar from "@/components/calendar/Calendar";
 import CustomDialog from "@/components/dialog/CustomDialog";
+import EventCategoryBadge from "@/components/events/EventCategoryBadge";
 import {
   ArrowLeft,
   ChevronDown,
   ListFilter,
   Pencil,
+  Plus,
   Trash,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const page = () => {
-  const route = useRouter();
-  const [number, setNumber] = useState<any>(0);
-  const [showDialog, setShowDialog] = useState(false);
-  const Items = [
-    { name: "Charan's Birthday", pos: 1 },
-    { name: "Task 1", pos: 2 },
-    { name: "Task 1", pos: 3 },
-    { name: "Task 1", pos: 4 },
-  ];
-  const HandleEnter = (data: any) => {
-    setNumber(data.pos);
-    console.log(data.pos);
-  };
+type Event = {
+  id: string;
+  name: string;
+  date: string;
+  category: "BIRTHDAY" | "MEETING" | "TASK" | "REMINDER";
+};
 
-  const CustomElement2 = () => {
-    return (
-      <>
-        <div className="flex justify-between w-full px-4 py-2 gap-1">
-          <Calendar className="text-black w-1/2 " />
-          <div>
-            <input
-              type="text"
-              className=" w-full border-b p-2 outline-none text-black"
-              placeholder="smtg"
-            ></input>
-            <input
-              type="text"
-              className=" w-full border-b p-2 outline-none text-black"
-              placeholder="Category"
-            ></input>
-          </div>
+const EventsPage = () => {
+  const router = useRouter();
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+
+  // Sample events data - replace with actual data fetching
+  const [events, setEvents] = useState<Event[]>([
+    {
+      id: "1",
+      name: "Charan's Birthday",
+      date: "2022-11-19",
+      category: "BIRTHDAY",
+    },
+    { id: "2", name: "Team Meeting", date: "2022-11-20", category: "MEETING" },
+    { id: "3", name: "Project Deadline", date: "2022-11-25", category: "TASK" },
+    {
+      id: "4",
+      name: "Doctor Appointment",
+      date: "2022-11-28",
+      category: "REMINDER",
+    },
+  ]);
+
+  const EventForm = () => (
+    <div className="flex flex-col w-full gap-4 p-4">
+      <div className="flex gap-4">
+        <Calendar className="w-1/2 border rounded-lg p-2" />
+        <div className="flex flex-col w-1/2 gap-3">
+          <input
+            type="text"
+            className="w-full p-2 border-b outline-none"
+            placeholder="Event name"
+          />
+          <select className="w-full p-2 border-b outline-none">
+            <option value="">Select category</option>
+            <option value="BIRTHDAY">Birthday</option>
+            <option value="MEETING">Meeting</option>
+            <option value="TASK">Task</option>
+            <option value="REMINDER">Reminder</option>
+          </select>
         </div>
-      </>
-    );
+      </div>
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          className="px-4 py-2 text-sm border rounded-lg hover:bg-zinc-100"
+          onClick={() => setShowDialog(false)}
+        >
+          Cancel
+        </button>
+        <button className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Add Event
+        </button>
+      </div>
+    </div>
+  );
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
   return (
-    <div className="flex w-full h-[85%] justify-center ">
-      <div className="w-2/3 bg-zinc-900 mt-10 flex border border-zinc-700 rounded-2xl shadow-lg px-4  h-full flex-col gap-4">
-        <div className=" border-b border-zinc-800 py-4 gap-8 w-full flex">
-          <ArrowLeft
-            size={20}
-            onClick={() => route.push("/pages/list")}
-            className=" hover:cursor-pointer self-center"
-          />
-          <p> Simple EVENT List</p>
+    <div className="flex justify-center w-full h-[85%]">
+      <div className="flex flex-col w-2/3 h-full gap-4 p-4 mt-10 border rounded-2xl bg-zinc-900 border-zinc-700 shadow-lg">
+        {/* Header */}
+        <div className="flex items-center gap-4 py-4 border-b border-zinc-800">
+          <button
+            onClick={() => router.push("/pages/list")}
+            className="p-1 rounded-full hover:bg-zinc-800 text-zinc-200"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-lg font-medium text-zinc-200">Event List</h1>
+          <div className="flex-1 flex justify-end px-2 gap-1">
+            <div className=" items-center gap-1 flex px-2 py-1 text-sm bg-slate-600 rounded-md border border-slate-700 ">
+              Deep work{" "}
+              <X size={16} className=" text-zinc-400 cursor-pointer" />
+            </div>
+            <div className=" flex justify-center items-center px-2 py-1 border border-zinc-800 rounded-md bg-zinc-800">
+              <Plus size={18} className=" cursor-pointer" />
+            </div>
+          </div>
         </div>
-        <CustomDialog
-          showDialog={showDialog}
-          setShowDialog={setShowDialog}
-          CustomElement2={<CustomElement2 />}
-        ></CustomDialog>
-        <div className="w-full py-4  px-10">
-          <div className="  flex justify-center w-full gap-8 h-fit ">
-            <button
-              className=" px-8 border hover:scale-[102%] rounded-md py-4 text-lg"
-              onClick={() => setShowDialog(true)}
-            >
-              Add a new Event
+
+        {/* Add Event Button */}
+        <div className="flex justify-center px-6">
+          <button
+            onClick={() => setShowDialog(true)}
+            className="px-6 py-3 text-lg font-medium border rounded-lg bg-blue-600 text-zinc-100 hover:bg-blue-700"
+          >
+            Add New Event
+          </button>
+        </div>
+
+        {/* Filter Controls */}
+        <div className="flex flex-col px-6 gap-2">
+          <div className="flex justify-end gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700">
+              <ListFilter size={16} />
+              Filter
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700">
+              All Time
+              <ChevronDown size={16} />
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-zinc-800 text-zinc-200 hover:bg-zinc-700">
+              Sort by
+              <ChevronDown size={16} />
             </button>
           </div>
         </div>
-        <div className="w-full py-4  px-10">
-          <div className=" flex justify-end w-full ">
-            <div className=" self-end flex gap-4">
-              <button className=" hover:bg-zinc-200 px-6 flex gap-2 py-1 border text-sm rounded-xl">
-                <ListFilter size={16} className=" self-center" />
-                <p>Filter</p>
-              </button>
-              <button className=" px-4 hover:bg-zinc-200 flex gap-2 py-1 border text-sm rounded-xl">
-                <p>All Time</p>
-                <ChevronDown size={16} className=" self-center" />
-              </button>
-              <button className=" px-4 hover:bg-zinc-200 flex gap-2 py-1 border text-sm rounded-xl">
-                <p>Sort by</p>
-                <ChevronDown size={16} className=" self-center" />
-              </button>
+
+        {/* Events List */}
+        <div className="flex-1 overflow-y-auto px-4 py-2">
+          {events.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-zinc-500">
+              No events yet. Add your first event!
             </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-4 overflow-auto py-2 px-4 w-full ">
-          {Items.map((data, key) => (
-            <div
-              key={key}
-              onMouseOver={() => HandleEnter(data)}
-              className="  px-8 rounded-xl hover:scale-[101%] transition-all duration-100 cursor-pointer flex justify-between relative border border-zinc-500 py-4 "
-            >
-              <div className="flex gap-4">
-                <p className=" self-center text-base">{data.name}</p>
-                <p className=" text-xs opacity-65 text-gray-400 self-center font-semibold">
-                  19-11-2022
-                </p>
-              </div>
-              <div className=" absolute left-[20%]  w-2/3 px-2 flex justify-center">
-                <div className=" flex justify-center w-fit rounded-lg py-[0.1rem] px-2 bg-green-200">
-                  <p className=" text-green-600 font-medium text-sm">
-                    BIRTHDAY
-                  </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  onMouseEnter={() => setHoveredEventId(event.id)}
+                  onMouseLeave={() => setHoveredEventId(null)}
+                  className="relative flex items-center justify-between p-4 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-750 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <p className="text-zinc-200">{event.name}</p>
+                    <p className="text-xs text-zinc-400">
+                      {formatDate(event.date)}
+                    </p>
+                  </div>
+
+                  <div className="absolute left-1/3">
+                    <EventCategoryBadge category={event.category} />
+                  </div>
+
+                  {hoveredEventId === event.id && (
+                    <div className="flex gap-2">
+                      <button className="p-2 rounded-md text-blue-500 hover:bg-zinc-700">
+                        <Pencil size={18} />
+                      </button>
+                      <button className="p-2 rounded-md text-red-500 hover:bg-zinc-700">
+                        <Trash size={18} />
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
-              {data.pos == number && (
-                <div className={`flex gap-4  h-full w-2/3 justify-end`}>
-                  <button className=" hover:scale-110 hover:bg-zinc-200 border px-4 rounded-lg text-sm">
-                    <Pencil size={18} />
-                  </button>
-                  <button className=" hover:scale-110 hover:bg-zinc-200 border px-4 rounded-lg text-sm">
-                    <Trash size={18} />
-                  </button>
-                </div>
-              )}
+              ))}
             </div>
-          ))}
+          )}
         </div>
+
+        {/* Add Event Dialog */}
+        <CustomDialog
+          showDialog={showDialog}
+          setShowDialog={setShowDialog}
+          // title="Add New Event"
+          CustomElement2={<EventForm />}
+        >
+          {/* <EventForm /> */}
+        </CustomDialog>
       </div>
     </div>
   );
 };
 
-export default page;
+export default EventsPage;
