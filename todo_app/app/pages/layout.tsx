@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/navbar/Navbar";
 
 export default function SecondLayout({
@@ -6,9 +7,11 @@ export default function SecondLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className=" h-screen">
-      <Navbar />
-      {children}
-    </div>
+    <ProtectedRoute>
+      <div className="h-screen pt-2">
+        <Navbar />
+        {children}
+      </div>
+    </ProtectedRoute>
   );
 }

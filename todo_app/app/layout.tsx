@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/context/auth";
 import { MetricsProvider } from "@/components/context/metrics";
 import QueryProvider from "@/components/QueryProvider";
 import "./globals.css";
@@ -11,7 +12,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={``}>
         <QueryProvider>
-          <MetricsProvider>{children}</MetricsProvider>
+          <AuthProvider>
+            <MetricsProvider>{children}</MetricsProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

@@ -437,7 +437,7 @@ const Calendar = ({
       {viewMode === "years" && renderYears()}
 
       {/* Selected date display */}
-      {selectedDate && (
+      {/* {selectedDate && (
         <div className="p-4 border-t text-center">
           <p className="text-sm text-gray-500">Selected:</p>
           <p className="font-medium">
@@ -449,9 +449,9 @@ const Calendar = ({
             })}
           </p>
         </div>
-      )}
+      )} */}
+      {/* {console.log(selectedDate?.toDateString())} */}
     </div>
   );
 };
-
 export default Calendar;

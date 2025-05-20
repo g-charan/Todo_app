@@ -1,23 +1,24 @@
 from flask import Flask
-from .extensions import  cors
+from .extensions import cors, db, jwt
 from .blueprints import register_blueprints
-# from .config import Config
+from datetime import timedelta
+import os
 
-def create_app(config_class=None):
+def create_app():
     app = Flask(__name__)
-    # app.config.from_object(config_class)
-    
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Cherry27#@localhost:5432/todos"
+
+    # JWT Configuration
+    app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "super-secret-key-change-in-production")
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+
     # Initialize extensions
-    # db.init_app(app)
-    # jwt.init_app(app)
+    db.init_app(app)
+    jwt.init_app(app)
     cors.init_app(app)
-    
+
     # Register blueprints
-    # for blueprint in blueprints:
-    #     app.register_blueprint(blueprint["blueprint"], url_prefix=blueprint["url_prefix"])
-    # from .auth import auth_bp
-    # app.register_blueprint(auth_bp, url_prefix='')
     register_blueprints(app)
-    # app.register_blueprint(todos_bp, url_prefix='/api/todos')
-    
+
     return app

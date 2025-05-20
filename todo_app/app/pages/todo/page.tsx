@@ -25,6 +25,7 @@ const Page = () => {
   const fetchTodos = async () => {
     const todoList = await getData();
     setItems(todoList);
+    return todoList;
   };
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const Page = () => {
 
   const { isLoading } = useQuery({
     queryKey: ["todos"],
-    queryFn: getData,
+    queryFn: fetchTodos,
   });
 
   if (isLoading) return <div className="text-center py-10">Loading...</div>;

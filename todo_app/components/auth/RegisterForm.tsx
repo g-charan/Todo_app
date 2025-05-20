@@ -1,36 +1,51 @@
 "use client";
-import { login } from "@/services/auth";
+import { register } from "@/services/auth";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const LoginForm = () => {
+const RegisterForm = () => {
   const router = useRouter();
-  // Pre-filled with test user credentials for easier testing
-  const [email, setEmail] = useState("test@example.com");
-  const [password, setPassword] = useState("password123");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    
+    // Validate form
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+    
     setIsLoading(true);
-
+    
     try {
-      const result = await login({
+      const result = await register({
+        name,
         email,
         password,
-        remember: rememberMe,
       });
-      console.log(result);
-
+      
       if (result.success) {
-        console.log("Login successful");
-        // Redirect to dashboard/home page after successful login
-        router.push("/pages/list");
+        setSuccess("Registration successful! Redirecting to login...");
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
       } else {
         setError(result.message);
       }
@@ -44,6 +59,25 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-zinc-400 mb-1"
+        >
+          Full Name
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-4 py-2 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="John Doe"
+        />
+      </div>
+
       <div>
         <label
           htmlFor="email"
@@ -76,7 +110,7 @@ const LoginForm = () => {
             id="password"
             name="password"
             type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -95,39 +129,40 @@ const LoginForm = () => {
             )}
           </button>
         </div>
+        <p className="mt-1 text-xs text-zinc-500">
+          Must be at least 8 characters long
+        </p>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <input
-            id="remember-me"
-            name="remember-me"
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500"
-          />
-          <label
-            htmlFor="remember-me"
-            className="ml-2 block text-sm text-zinc-400"
-          >
-            Remember me
-          </label>
-        </div>
-
-        <div className="text-sm">
-          <a
-            href="/forgot-password"
-            className="font-medium text-blue-500 hover:text-blue-400"
-          >
-            Forgot password?
-          </a>
-        </div>
+      <div>
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-zinc-400 mb-1"
+        >
+          Confirm Password
+        </label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type={showPassword ? "text" : "password"}
+          autoComplete="new-password"
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-4 py-2 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="••••••••"
+        />
       </div>
 
       {error && (
         <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded-md text-sm">
           {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-500/10 border border-green-500/50 text-green-500 px-4 py-2 rounded-md text-sm">
+          {success}
         </div>
       )}
 
@@ -161,10 +196,10 @@ const LoginForm = () => {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Signing in...
+              Creating account...
             </>
           ) : (
-            "Sign in"
+            "Create Account"
           )}
         </button>
       </div>
@@ -172,4 +207,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

@@ -23,8 +23,8 @@ export const postTodo = async (name: string) => {
   return "success";
 };
 
-export const deleteTodo = async (pos: any) => {
-  const res = await axios.delete(`${url}/deleteTodos/${pos}`);
+export const deleteTodo = async (todo_id: any) => {
+  const res = await axios.delete(`${url}/deleteTodos/${todo_id}`);
   revalidatePath("/pages/todo");
   return "success";
 };
