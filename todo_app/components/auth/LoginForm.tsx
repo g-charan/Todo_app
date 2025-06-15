@@ -8,7 +8,7 @@ const LoginForm = () => {
   const router = useRouter();
   // Pre-filled with test user credentials for easier testing
   const [email, setEmail] = useState("test@example.com");
-  const [password, setPassword] = useState("password123");
+  const [password, setPassword] = useState("12345678");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +47,7 @@ const LoginForm = () => {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-zinc-400 mb-1"
+          className="block mb-1 font-medium text-zinc-400 text-sm"
         >
           Email address
         </label>
@@ -59,7 +59,7 @@ const LoginForm = () => {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-4 py-2 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="bg-zinc-800 px-4 py-2 border border-zinc-700 focus:border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-zinc-100"
           placeholder="you@example.com"
         />
       </div>
@@ -67,7 +67,7 @@ const LoginForm = () => {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-zinc-400 mb-1"
+          className="block mb-1 font-medium text-zinc-400 text-sm"
         >
           Password
         </label>
@@ -80,24 +80,24 @@ const LoginForm = () => {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-4 py-2 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+            className="bg-zinc-800 px-4 py-2 pr-10 border border-zinc-700 focus:border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-zinc-100"
             placeholder="••••••••"
           />
           <button
             type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            className="right-0 absolute inset-y-0 flex items-center pr-3"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeClosedIcon className="h-5 w-5 text-zinc-400" />
+              <EyeClosedIcon className="w-5 h-5 text-zinc-400" />
             ) : (
-              <EyeIcon className="h-5 w-5 text-zinc-400" />
+              <EyeIcon className="w-5 h-5 text-zinc-400" />
             )}
           </button>
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div className="flex items-center">
           <input
             id="remember-me"
@@ -105,11 +105,11 @@ const LoginForm = () => {
             type="checkbox"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500"
+            className="bg-zinc-800 border-zinc-700 rounded focus:ring-blue-500 w-4 h-4 text-blue-600"
           />
           <label
             htmlFor="remember-me"
-            className="ml-2 block text-sm text-zinc-400"
+            className="block ml-2 text-zinc-400 text-sm"
           >
             Remember me
           </label>
@@ -126,7 +126,7 @@ const LoginForm = () => {
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded-md text-sm">
+        <div className="bg-red-500/10 px-4 py-2 border border-red-500/50 rounded-md text-red-500 text-sm">
           {error}
         </div>
       )}
@@ -142,7 +142,7 @@ const LoginForm = () => {
           {isLoading ? (
             <>
               <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                className="mr-3 -ml-1 w-5 h-5 text-white animate-spin"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"

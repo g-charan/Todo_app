@@ -1,0 +1,142 @@
+-- 1. Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- 2. Create users table
+CREATE TABLE users (
+user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+email VARCHAR(255) UNIQUE NOT NULL,
+password_hash VARCHAR(255) NOT NULL,
+name VARCHAR(100),
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+last_login TIMESTAMP WITH TIME ZONE,
+is_active BOOLEAN DEFAULT TRUE,
+profile_picture_url VARCHAR(255),
+timezone VARCHAR(50) DEFAULT 'UTC'
+);
+
+-- 3. Create lists table with type
+CREATE TABLE lists (
+list_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+name VARCHAR(100) NOT NULL,
+description TEXT,
+list_type VARCHAR(20) NOT NULL CHECK (list_type IN ('todo', 'focus_session', 'event')),
+color VARCHAR(20) DEFAULT '#3B82F6',
+position INTEGER DEFAULT 0,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Create todos table
+CREATE TABLE todos (
+todo_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+list_id UUID NOT NULL,
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+title VARCHAR(255) NOT NULL,
+description TEXT,
+due_date TIMESTAMP WITH TIME ZONE,
+priority INTEGER DEFAULT 2,
+completed BOOLEAN DEFAULT FALSE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+completed_at TIMESTAMP WITH TIME ZONE,
+category VARCHAR(50),
+FOREIGN KEY (list_id) REFERENCES lists(list_id) ON DELETE CASCADE
+);
+
+-- 5. Create focus_sessions table
+CREATE TABLE focus_sessions (
+session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+list_id UUID NOT NULL,
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+todo_id UUID REFERENCES todos(todo_id) ON DELETE SET NULL,
+duration INTEGER NOT NULL,
+remaining_duration INTEGER NOT NULL,
+start_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+end_time TIMESTAMP WITH TIME ZONE,
+status VARCHAR(20) DEFAULT 'active',
+tags VARCHAR(255)[],
+notes TEXT,
+interruptions INTEGER DEFAULT 0,
+FOREIGN KEY (list_id) REFERENCES lists(list_id) ON DELETE CASCADE
+);
+
+-- 6. Create events table
+CREATE TABLE events (
+event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+list_id UUID NOT NULL,
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+title VARCHAR(255) NOT NULL,
+description TEXT,
+start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+category VARCHAR(50) NOT NULL,
+location VARCHAR(255),
+is_recurring BOOLEAN DEFAULT FALSE,
+recurrence_pattern VARCHAR(100),
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+color VARCHAR(20) DEFAULT '#3B82F6',
+FOREIGN KEY (list_id) REFERENCES lists(list_id) ON DELETE CASCADE
+);
+
+-- 7. Create user_preferences table
+CREATE TABLE user_preferences (
+preference_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE UNIQUE,
+pomodoro_duration INTEGER DEFAULT 1500,
+short_break_duration INTEGER DEFAULT 300,
+long_break_duration INTEGER DEFAULT 900,
+long_break_interval INTEGER DEFAULT 4,
+daily_goal INTEGER DEFAULT 8,
+theme VARCHAR(20) DEFAULT 'dark',
+enable_notifications BOOLEAN DEFAULT TRUE,
+notification_sound VARCHAR(50) DEFAULT 'bell',
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 8. Create function and trigger for type validation
+CREATE OR REPLACE FUNCTION validate_list_item_type()
+RETURNS TRIGGER AS $$
+BEGIN
+IF TG_TABLE_NAME = 'todos' THEN
+IF (SELECT list_type FROM lists WHERE list_id = NEW.list_id) != 'todo' THEN
+RAISE EXCEPTION 'List must be of type "todo" for todos';
+END IF;
+ELSIF TG_TABLE_NAME = 'focus_sessions' THEN
+IF (SELECT list_type FROM lists WHERE list_id = NEW.list_id) != 'focus_session' THEN
+RAISE EXCEPTION 'List must be of type "focus_session" for focus_sessions';
+END IF;
+ELSIF TG_TABLE_NAME = 'events' THEN
+IF (SELECT list_type FROM lists WHERE list_id = NEW.list_id) != 'event' THEN
+RAISE EXCEPTION 'List must be of type "event" for events';
+END IF;
+END IF;
+RETURN NEW;
+END;
+
+$$
+LANGUAGE plpgsql;
+
+-- 9. Create triggers for each table
+CREATE TRIGGER validate_todo_list_type
+BEFORE INSERT OR UPDATE ON todos
+FOR EACH ROW EXECUTE FUNCTION validate_list_item_type();
+
+CREATE TRIGGER validate_focus_session_list_type
+BEFORE INSERT OR UPDATE ON focus_sessions
+FOR EACH ROW EXECUTE FUNCTION validate_list_item_type();
+
+CREATE TRIGGER validate_event_list_type
+BEFORE INSERT OR UPDATE ON events
+FOR EACH ROW EXECUTE FUNCTION validate_list_item_type();
+
+-- 10. Create indexes
+CREATE INDEX idx_lists_user ON lists(user_id);
+CREATE INDEX idx_lists_type ON lists(list_type);
+CREATE INDEX idx_todos_list ON todos(list_id);
+CREATE INDEX idx_focus_sessions_list ON focus_sessions(list_id);
+CREATE INDEX idx_events_list ON events(list_id);
+provide mermaid diagram for this
+$$
